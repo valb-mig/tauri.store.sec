@@ -7,7 +7,10 @@ const rubik = Rubik({
 });
 
 export const metadata: Metadata = {
-	title: "Store.sec",
+	title: {
+		template: "%s | Store.sec",
+		absolute: "Store.sec",
+	},
 	description: "Storage for your passwords",
 };
 
@@ -18,7 +21,9 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en">
-			<body className={rubik.className}>{children}</body>
+			<body className={rubik.className}>
+				<div className="h-screen w-full bg-neutral-950 text-xl">{children}</div>
+			</body>
 		</html>
 	);
 }
