@@ -23,7 +23,7 @@ const Header = () => {
 					<icons.Plus width={15} /> add
 				</Button>
 				<Button
-					key="add"
+					key="export"
 					type="button"
 					onClick={() => {
 						console.log("test");

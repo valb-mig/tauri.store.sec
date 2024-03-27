@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 		absolute: "Store.sec",
 	},
 	description: "Storage for your passwords",
+	icons: "/favicon.png"
 };
 
 export default function RootLayout({
@@ -22,7 +23,7 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body className={rubik.className}>
-				<div className="h-screen w-full bg-neutral-950 text-xl">{children}</div>
+				<div className="h-screen w-full bg-neutral-950 text-xl text-neutral-50 overflow-hidden">{children}</div>
 			</body>
 		</html>
 	);

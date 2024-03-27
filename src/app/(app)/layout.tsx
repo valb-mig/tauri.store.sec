@@ -1,6 +1,6 @@
-import Footer from "@/app/components/skeleton/Footer";
-import Header from "@/app/components/skeleton/Header";
-import Logs from "@/app/components/skeleton/Logs";
+import Footer from "@/app/components/layout/Footer";
+import Header from "@/app/components/layout/Header";
+import Logs from "@/app/components/layout/Logs";
 
 const AppLayout = ({
 	children,

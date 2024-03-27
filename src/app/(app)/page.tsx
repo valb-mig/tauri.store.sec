@@ -15,7 +15,7 @@ const App = () => {
 					className="flex flex-col gap-5 w-full sm:max-w-fit"
 				>
 					{[1, 2].map((value, index) => (
-						<Card.Root>
+						<Card.Root key={value}>
 							<div className="flex gap-1 absolute top-[-.6rem] left-[-.6rem]">
 								<icons.Github className="bg-neutral-800 border border-neutral-700 rounded-full w-8 h-8 p-1" />
 								<span className="flex items-center gap-1 text-sm bg-yellow-800 border border-yellow-700 rounded-full h-8 p-1">

@@ -11,8 +11,8 @@ const Logs = () => {
 				Recent activities
 			</p>
 			<div className="flex flex-col gap-2">
-				{[1, 2].map((value) => (
-					<span className="bg-neutral-900 rounded p-2 text-sm text-neutral-500">
+				{[1, 2].map((value, index) => (
+					<span key={value} className="bg-neutral-900 rounded p-2 text-sm text-neutral-500">
 						Log {value}
 					</span>
 				))}
