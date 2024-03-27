@@ -4,9 +4,11 @@ const ButtonStyle = tv({
 	base: "flex justify-center items-center gap-1 text-sm px-1 rounded-full",
 	variants: {
 		format: {
-			primary: "text-neutral-700 bg-neutral-100 border-neutral-200 hover:bg-neutral-200 border",
-			secondary: "text-white bg-neutral-800 border-neutral-700 hover:bg-neutral-700 border",
-      invisible: "text-white bg-inherit"
+			primary:
+				"text-neutral-700 bg-neutral-100 border-neutral-200 hover:bg-neutral-200 border",
+			secondary:
+				"text-white bg-neutral-800 border-neutral-700 hover:bg-neutral-700 border",
+			invisible: "text-white bg-inherit",
 		},
 	},
 	defaultVariants: {
