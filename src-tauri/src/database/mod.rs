@@ -1,7 +1,11 @@
-use rusqlite::{Connection, Result};
+use rusqlite::{ Connection, Result };
 
 pub fn schema() -> Result<()> {
-    let conn = Connection::open("db/sqlite.db")?;
+
+    let conn = match Connection::open("db/sqlite.db") {
+        Ok(c) => c,
+        Err(e) => panic!("Error opening database: {}", e),
+    };
 
     /*
         User 
@@ -10,7 +14,9 @@ pub fn schema() -> Result<()> {
     conn.execute(
         "CREATE TABLE user (
             id INTEGER PRIMARY KEY,
-            auth TEXT NOT NULL
+            name TEXT NOT NULL,
+            auth TEXT NOT NULL,
+            date DATETIME NOT NULL
         )",
         [],
     )?;
@@ -28,8 +34,4 @@ pub fn schema() -> Result<()> {
     )?;
 
     Ok(())
-}
-
-pub fn select(query: String) {
-    println!("{}", query);
 }
