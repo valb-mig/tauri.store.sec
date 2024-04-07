@@ -1,17 +1,19 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-export function middleware(req: NextRequest) {
-	const bool: boolean = true;
+export async function middleware(req: NextRequest) {
 
-	if (req.nextUrl.pathname.startsWith("/")) {
-		if (bool) {
-			return NextResponse.redirect(new URL("/auth/register", req.url));
-		}
+	console.info("-- Middleware --");
+	
+	const userCookie: boolean = false; // [TODO]: Verify auth cookie
 
+	if(userCookie)
+	{
 		return NextResponse.redirect(new URL("/auth/login", req.url));
 	}
+
+	return NextResponse.redirect(new URL("/auth/register", req.url));
 }
 
 export const config = {
-	matcher: "//:path*",
+	matcher: [ '//:path*' ],
 };
