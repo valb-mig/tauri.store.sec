@@ -5,7 +5,7 @@ const AuthLayout = ({
 }>) => {
 	return (
 		<>
-			<section id="content" className="flex flex-col h-full sm:flex-row">
+			<section id="content" className="flex flex-col h-full ">
 				<main className="flex justify-center w-full">{children}</main>
 			</section>
 		</>
