@@ -1,13 +1,13 @@
 import { tv } from "tailwind-variants";
 
 const InputStyle = tv({
-	base: "flex justify-center items-center gap-1 text-sm px-1 rounded-full",
+	base: "flex justify-center w-full items-center gap-1 text-lg p-2 rounded",
 	variants: {
 		format: {
 			normal:
-				"text-neutral-700 bg-neutral-100 border-neutral-200 hover:bg-neutral-200 border",
+				"bg-neutral-900 text-white",
 			error:
-				"text-white bg-neutral-800 border-neutral-700 hover:bg-neutral-700 border",
+				"bg-red-500 text-red-300",
 		},
 	},
 	defaultVariants: {
