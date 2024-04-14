@@ -29,7 +29,7 @@ const useLogin = () => {
 
 		if (res?.success) {
 			try {
-				generateToken(JSON.parse(res.response));
+				await generateToken(JSON.parse(res.response));
 				return true;
 			} catch (e) {
 				console.error("[useLogin]: ", e);

@@ -4,6 +4,13 @@ use serde_json;
 use chrono::Utc;
 use rusqlite::{ Connection, Result };
 
+pub mod helpers;
+
+use helpers::{
+    hash_token,
+    verify_password
+};
+
 #[derive(Debug, Serialize)]
 struct User {
     name: String,
@@ -16,6 +23,34 @@ pub struct ReturnResponse {
     response: String
 }
 
+#[tauri::command]
+pub fn run_add_token(token: String) -> ReturnResponse {
+    match add_token(token) {
+        Ok(new_user) => ReturnResponse {
+            success: true,
+            response: serde_json::to_string(&new_user).unwrap(),
+        },
+        Err(err) => ReturnResponse {
+            success: false,
+            response: format!("[Rust] Error: {}", err),
+        },
+    }
+}
+
+#[tauri::command]
+pub fn run_verify_token(token: String) -> ReturnResponse {
+    match verify_token(token) {
+        Ok(response_user) => ReturnResponse {
+            success: true,
+            response: serde_json::to_string(&response_user).unwrap(),
+        },
+        Err(err) => ReturnResponse {
+            success: false,
+            response: format!("[Rust] Error: {}", err),
+        },
+    }
+}
+
 fn add_token(token: String) -> Result<User, Box<dyn Error>> {
 
     let os_user = whoami::username().to_string();
@@ -25,7 +60,7 @@ fn add_token(token: String) -> Result<User, Box<dyn Error>> {
         let current_time = Utc::now();
         let formatted_time = current_time.format("%Y-%m-%d %H:%M:%S").to_string();
     
-        let token_hash = token.to_string();
+        let token_hash = hash_token(&token)?;
 
         let conn = match Connection::open("db/sqlite.db") {
             Ok(c) => c,
@@ -71,13 +106,20 @@ fn verify_token(token: String) -> Result<User, Box<dyn Error>> {
     let os_user = whoami::username().to_string();
 
     let conn = Connection::open("db/sqlite.db")?;
-    let mut stmt = conn.prepare("SELECT name, date FROM user WHERE name = ?1 AND auth = ?2")?;
+    let mut stmt = conn.prepare("SELECT name, auth, date FROM user WHERE name = ?1")?;
 
-    let user = stmt.query_row([os_user, token], |row| {
-        Ok( User {
-            name: row.get(0)?,
-            date: row.get(1)?,
-        })
+    let user = stmt.query_row([os_user], |row| {
+
+        let auth_hash: String = row.get(1)?;
+
+        if verify_password(token.as_str(), &auth_hash) {
+            Ok( User {
+                name: row.get(0)?,
+                date: row.get(2)?,
+            })
+        } else {
+            Err(rusqlite::Error::ToSqlConversionFailure(Box::new(std::io::Error::new(std::io::ErrorKind::Other, "[Rust] Invalid password"))))
+        }
     });
 
     match user {
@@ -87,33 +129,5 @@ fn verify_token(token: String) -> Result<User, Box<dyn Error>> {
         }
         Err(rusqlite::Error::QueryReturnedNoRows) => Err(Box::new(std::io::Error::new(std::io::ErrorKind::Other, "[Rust] User not found"))),
         Err(err) => Err(Box::new(err)),
-    }
-}
-
-#[tauri::command]
-pub fn run_add_token(token: String) -> ReturnResponse {
-    match add_token(token) {
-        Ok(new_user) => ReturnResponse {
-            success: true,
-            response: serde_json::to_string(&new_user).unwrap(),
-        },
-        Err(err) => ReturnResponse {
-            success: false,
-            response: format!("[Rust] Error: {}", err),
-        },
-    }
-}
-
-#[tauri::command]
-pub fn run_verify_token(token: String) -> ReturnResponse {
-    match verify_token(token) {
-        Ok(response_user) => ReturnResponse {
-            success: true,
-            response: serde_json::to_string(&response_user).unwrap(),
-        },
-        Err(err) => ReturnResponse {
-            success: false,
-            response: format!("[Rust] Error: {}", err),
-        },
     }
 }

@@ -62,7 +62,7 @@ const Login = () => {
 					</span>
 
 					<Input
-						type="text"
+						type="password"
 						placeholder=""
 						hookForm={{ ...register("token") }}
 					/>
