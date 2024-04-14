@@ -6,6 +6,8 @@ const ButtonStyle = tv({
 		format: {
 			primary:
 				"text-neutral-700 bg-neutral-100 border-neutral-200 hover:bg-neutral-200 border",
+			action:
+				"text-white bg-neutral-800 border-neutral-700 hover:bg-neutral-700 w-10 h-10 border",
 			secondary:
 				"text-white bg-neutral-800 border-neutral-700 hover:bg-neutral-700 border",
 			invisible: "text-white bg-inherit",
@@ -17,7 +19,7 @@ const ButtonStyle = tv({
 });
 
 interface ButtonStyleOptions {
-	format?: "primary" | "secondary";
+	format?: "primary" | "secondary" | "action";
 }
 
 interface ButtonProps {
@@ -30,7 +32,12 @@ interface ButtonProps {
 
 const Button = ({ type, disabled, onClick, style, children }: ButtonProps) => {
 	return (
-		<button type={type} onClick={onClick} className={ButtonStyle(style)} disabled={disabled}>
+		<button
+			type={type}
+			onClick={onClick}
+			className={ButtonStyle(style)}
+			disabled={disabled}
+		>
 			{children}
 		</button>
 	);

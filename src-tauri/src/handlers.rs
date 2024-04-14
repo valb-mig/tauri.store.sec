@@ -66,12 +66,50 @@ fn check_user(name: &str) -> Result<bool> {
     }
 }
 
+fn verify_token(token: String) -> Result<User, Box<dyn Error>> {
+
+    let os_user = whoami::username().to_string();
+
+    let conn = Connection::open("db/sqlite.db")?;
+    let mut stmt = conn.prepare("SELECT name, date FROM user WHERE name = ?1 AND auth = ?2")?;
+
+    let user = stmt.query_row([os_user, token], |row| {
+        Ok( User {
+            name: row.get(0)?,
+            date: row.get(1)?,
+        })
+    });
+
+    match user {
+        Ok(user) => {
+            println!("[Rust] User found, {} - {}", user.name, user.date);
+            Ok(user)
+        }
+        Err(rusqlite::Error::QueryReturnedNoRows) => Err(Box::new(std::io::Error::new(std::io::ErrorKind::Other, "[Rust] User not found"))),
+        Err(err) => Err(Box::new(err)),
+    }
+}
+
 #[tauri::command]
 pub fn run_add_token(token: String) -> ReturnResponse {
     match add_token(token) {
         Ok(new_user) => ReturnResponse {
             success: true,
             response: serde_json::to_string(&new_user).unwrap(),
+        },
+        Err(err) => ReturnResponse {
+            success: false,
+            response: format!("[Rust] Error: {}", err),
+        },
+    }
+}
+
+#[tauri::command]
+pub fn run_verify_token(token: String) -> ReturnResponse {
+    match verify_token(token) {
+        Ok(response_user) => ReturnResponse {
+            success: true,
+            response: serde_json::to_string(&response_user).unwrap(),
         },
         Err(err) => ReturnResponse {
             success: false,

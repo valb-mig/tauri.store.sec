@@ -4,10 +4,8 @@ const InputStyle = tv({
 	base: "flex justify-center w-full items-center gap-1 text-lg p-2 rounded",
 	variants: {
 		format: {
-			normal:
-				"bg-neutral-900 text-white",
-			error:
-				"bg-red-500 text-red-300",
+			normal: "bg-neutral-900 text-white",
+			error: "bg-red-500 text-red-300",
 		},
 	},
 	defaultVariants: {
