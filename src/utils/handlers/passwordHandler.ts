@@ -8,20 +8,18 @@ type responseType = {
 };
 
 type formData = {
-    title: string,
-    password: string
-}
+	title: string;
+	password: string;
+};
 
 const passwordHandler = () => {
-
-    const addPassword = async (form: formData) => {
-
-        let res: responseType | null = null;
+	const addPassword = async (form: formData) => {
+		let res: responseType | null = null;
 
 		try {
 			const result = await invoke<responseType>("run_add_password", {
-                title:    form.title,
-				password: form.password
+				title: form.title,
+				password: form.password,
 			});
 			res = result;
 		} catch (e) {
@@ -29,8 +27,8 @@ const passwordHandler = () => {
 		}
 
 		console.log(res);
-		
-        if (res?.success) {
+
+		if (res?.success) {
 			try {
 				return true;
 			} catch (e) {
@@ -38,11 +36,10 @@ const passwordHandler = () => {
 			}
 		}
 
-        return false;
-    }
+		return false;
+	};
 
 	const getPasswords = async () => {
-
 		let res: responseType | null = null;
 
 		try {
@@ -53,8 +50,8 @@ const passwordHandler = () => {
 		}
 
 		console.log(res);
-		
-        if (res?.success) {
+
+		if (res?.success) {
 			try {
 				return true;
 			} catch (e) {
@@ -62,10 +59,10 @@ const passwordHandler = () => {
 			}
 		}
 
-        return false;
-	}
+		return false;
+	};
 
-    return { addPassword, getPasswords }
-}
+	return { addPassword, getPasswords };
+};
 
 export default passwordHandler;

@@ -26,7 +26,14 @@ interface InputProps {
 	style?: InputStyleOptions;
 }
 
-const Input = ({ type, value, label, hookForm, placeholder, style }: InputProps) => {
+const Input = ({
+	type,
+	value,
+	label,
+	hookForm,
+	placeholder,
+	style,
+}: InputProps) => {
 	return (
 		<div className="flex flex-col gap-1">
 			{label !== undefined && (

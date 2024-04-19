@@ -2,11 +2,10 @@
 
 import { icons } from "lucide-react";
 
-import { useGlobalContext } from "@/config/context/global/store";
 import Card from "@/app/components/ui/Card";
+import { useGlobalContext } from "@/config/context/global/store";
 
 const App = () => {
-
 	const { passwords } = useGlobalContext();
 
 	return (

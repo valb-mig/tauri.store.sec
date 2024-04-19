@@ -13,8 +13,7 @@ type responseType = {
 };
 
 const useAuth = () => {
-
-    const userLogin = async (data: formType) => {
+	const userLogin = async (data: formType) => {
 		let res: responseType | null = null;
 
 		try {
@@ -40,7 +39,7 @@ const useAuth = () => {
 		return false;
 	};
 
-    const userRegister = async (data: formType) => {
+	const userRegister = async (data: formType) => {
 		let res: responseType | null = null;
 
 		try {
@@ -66,7 +65,7 @@ const useAuth = () => {
 		return false;
 	};
 
-    return { userLogin, userRegister };
+	return { userLogin, userRegister };
 };
 
 export default useAuth;
