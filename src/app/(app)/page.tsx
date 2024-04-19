@@ -1,8 +1,14 @@
+"use client";
+
 import { icons } from "lucide-react";
 
+import { useGlobalContext } from "@/config/context/global/store";
 import Card from "@/app/components/ui/Card";
 
 const App = () => {
+
+	const { passwords } = useGlobalContext();
+
 	return (
 		<div className="flex flex-col w-full">
 			<div className="flex justify-center w-full gap-1 p-2 border-b border-neutral-900">
@@ -14,7 +20,7 @@ const App = () => {
 					id="passwords"
 					className="flex flex-col gap-5 w-full sm:max-w-fit"
 				>
-					{[1, 2].map((value, index) => (
+					{passwords.map((value, index) => (
 						<Card.Root key={value}>
 							<div className="flex gap-1 absolute top-[-.6rem] left-[-.6rem]">
 								<icons.Github className="bg-neutral-800 border border-neutral-700 rounded-full w-8 h-8 p-1" />

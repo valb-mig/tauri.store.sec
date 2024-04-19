@@ -1,6 +1,6 @@
 "use server";
 
-import { verifyToken } from "@/utils/webTokenHelper";
+import { verifyToken } from "@/utils/helpers/webToken";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function middleware(req: NextRequest) {

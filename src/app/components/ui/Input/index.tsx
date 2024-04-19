@@ -20,14 +20,22 @@ interface InputStyleOptions {
 interface InputProps {
 	type: string;
 	value?: string;
+	label?: string;
 	placeholder?: string;
 	hookForm?: object;
 	style?: InputStyleOptions;
 }
 
-const Input = ({ type, value, hookForm, placeholder, style }: InputProps) => {
+const Input = ({ type, value, label, hookForm, placeholder, style }: InputProps) => {
 	return (
-		<div>
+		<div className="flex flex-col gap-1">
+			{label !== undefined && (
+				<div>
+					<span className="text-sm text-neutral-600 border border-neutral-900 p-1 rounded">
+						{label}
+					</span>
+				</div>
+			)}
 			<input
 				type={type}
 				value={value}

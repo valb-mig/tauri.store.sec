@@ -8,7 +8,7 @@ import React, { useEffect, useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 
-import useLogin from "@/app/auth/hooks/useLogin";
+import useAuth from "@/app/auth/hooks/useAuth";
 
 import Button from "@/app/components/ui/Button";
 import Input from "@/app/components/ui/Input";
@@ -20,7 +20,7 @@ type LoginSchema = z.infer<typeof ZodSchema>;
 const Login = () => {
 	const router = useRouter();
 
-	const { login } = useLogin();
+	const { userLogin } = useAuth();
 	const [auth, setAuth] = useState(false);
 
 	const {
@@ -34,7 +34,7 @@ const Login = () => {
 
 	const hendleFormSubmit: SubmitHandler<LoginSchema> = async (data) => {
 		try {
-			setAuth(await login(data));
+			setAuth(await userLogin(data));
 		} catch (error) {
 			setError("root", {
 				message: "Connection error",
