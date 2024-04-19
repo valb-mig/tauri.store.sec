@@ -12,11 +12,12 @@ pub fn schema() -> Result<()> {
     */
 
     conn.execute(
-        "CREATE TABLE user (
+        "CREATE TABLE sec_user (
             id INTEGER PRIMARY KEY,
             name TEXT NOT NULL,
             auth TEXT NOT NULL,
-            date DATETIME NOT NULL
+            create_date DATETIME NOT NULL,
+            last_login DATETIME NOT NULL
         )",
         [],
     )?;
@@ -26,9 +27,24 @@ pub fn schema() -> Result<()> {
     */
 
     conn.execute(
-        "CREATE TABLE passwords (
+        "CREATE TABLE sec_passwords (
             id INTEGER PRIMARY KEY,
-            password TEXT NOT NULL
+            password TEXT NOT NULL,
+            create_date DATETIME NOT NULL,
+            last_update DATETIME NOT NULL
+        )",
+        [],
+    )?;
+
+    /*
+        Password log
+    */
+
+    conn.execute(
+        "CREATE TABLE sec_logs (
+            id INTEGER PRIMARY KEY,
+            log_desc TEXT NOT NULL,
+            create_date DATETIME NOT NULL
         )",
         [],
     )?;

@@ -9,7 +9,8 @@ mod handlers;
 
 use handlers::{
   run_add_token, 
-  run_verify_token
+  run_verify_token,
+  run_add_password
 };
 
 fn main() {
@@ -19,7 +20,8 @@ fn main() {
   tauri::Builder::default()
     .invoke_handler(tauri::generate_handler![
       run_add_token,
-      run_verify_token
+      run_verify_token,
+      run_add_password
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

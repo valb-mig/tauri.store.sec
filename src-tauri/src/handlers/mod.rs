@@ -1,7 +1,7 @@
 use std::error::Error;
 use serde::Serialize;
 use serde_json;
-use chrono::Utc;
+use chrono::Local;
 use rusqlite::{ Connection, Result };
 
 pub mod helpers;
@@ -14,13 +14,24 @@ use helpers::{
 #[derive(Debug, Serialize)]
 struct User {
     name: String,
-    date: String,
+    create_date: String,
 }
 
 #[derive(Serialize)]
 pub struct ReturnResponse {
     success: bool,
     response: String
+}
+
+#[tauri::command]
+pub fn run_add_password(title: String, password: String) -> ReturnResponse {
+
+    let response: ReturnResponse = ReturnResponse { 
+        success: true, 
+        response: "".to_string() 
+    };
+
+    return response;
 }
 
 #[tauri::command]
@@ -57,7 +68,7 @@ fn add_token(token: String) -> Result<User, Box<dyn Error>> {
 
     if !check_user(&os_user)? {
 
-        let current_time = Utc::now();
+        let current_time = Local::now();
         let formatted_time = current_time.format("%Y-%m-%d %H:%M:%S").to_string();
     
         let token_hash = hash_token(&token)?;
@@ -69,12 +80,12 @@ fn add_token(token: String) -> Result<User, Box<dyn Error>> {
     
         let new_user = User {
             name: os_user.clone(),
-            date: formatted_time.to_string()
+            create_date: formatted_time.to_string()
         };
 
         conn.execute(
-            "INSERT INTO user (name, auth, date) VALUES (?1, ?2, ?3)",
-            (&new_user.name, token_hash, &new_user.date),
+            "INSERT INTO sec_user (name, auth, create_date, last_login) VALUES (?1, ?2, ?3, ?4)",
+            (&new_user.name, token_hash, &new_user.create_date, formatted_time.to_string()),
         )?;
 
         println!("[Rust] Token: {}", token);
@@ -90,7 +101,7 @@ fn add_token(token: String) -> Result<User, Box<dyn Error>> {
 
 fn check_user(name: &str) -> Result<bool> {
     let conn = Connection::open("db/sqlite.db")?;
-    let mut stmt = conn.prepare("SELECT COUNT(*) FROM user WHERE name = ?1")?;
+    let mut stmt = conn.prepare("SELECT COUNT(*) FROM sec_user WHERE name = ?1")?;
     let mut rows = stmt.query(&[name])?;
 
     if let Some(row) = rows.next()? {
@@ -106,7 +117,7 @@ fn verify_token(token: String) -> Result<User, Box<dyn Error>> {
     let os_user = whoami::username().to_string();
 
     let conn = Connection::open("db/sqlite.db")?;
-    let mut stmt = conn.prepare("SELECT name, auth, date FROM user WHERE name = ?1")?;
+    let mut stmt = conn.prepare("SELECT name, auth, create_date FROM sec_user WHERE name = ?1")?;
 
     let user = stmt.query_row([os_user], |row| {
 
@@ -115,7 +126,7 @@ fn verify_token(token: String) -> Result<User, Box<dyn Error>> {
         if verify_password(token.as_str(), &auth_hash) {
             Ok( User {
                 name: row.get(0)?,
-                date: row.get(2)?,
+                create_date: row.get(2)?,
             })
         } else {
             Err(rusqlite::Error::ToSqlConversionFailure(Box::new(std::io::Error::new(std::io::ErrorKind::Other, "[Rust] Invalid password"))))
@@ -124,7 +135,7 @@ fn verify_token(token: String) -> Result<User, Box<dyn Error>> {
 
     match user {
         Ok(user) => {
-            println!("[Rust] User found, {} - {}", user.name, user.date);
+            println!("[Rust] User found, {} - {}", user.name, user.create_date);
             Ok(user)
         }
         Err(rusqlite::Error::QueryReturnedNoRows) => Err(Box::new(std::io::Error::new(std::io::ErrorKind::Other, "[Rust] User not found"))),
