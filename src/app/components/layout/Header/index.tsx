@@ -14,7 +14,7 @@ import Modal from "@/app/components/ui/Modal";
 import passwordHandler from "@/utils/handlers/passwordHandler";
 
 const ZodSchema = z.object({
-	title: z.string().min(1),
+	title: z.string().min(1).max(20),
 	password: z.string().min(1),
 });
 

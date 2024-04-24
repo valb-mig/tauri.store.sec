@@ -1,15 +1,12 @@
 "use client";
 
+import type { responseType } from "@/types/interfaces/interface";
+
 import { generateToken } from "@/utils/helpers/webToken";
 import { invoke } from "@tauri-apps/api/tauri";
 
 type formType = {
 	token: string;
-};
-
-type responseType = {
-	success: boolean;
-	response: string;
 };
 
 const useAuth = () => {

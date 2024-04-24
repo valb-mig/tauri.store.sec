@@ -2,15 +2,17 @@
 "use client";
 
 import type React from "react";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
+
+import type { passwordType } from "@/types/interfaces/interface";
 
 interface GlobalContextProviderInterface {
 	children: React.ReactNode;
 }
 
 interface PasswordContextType {
-	passwords: string[];
-	setPasswords: (passwords: string[]) => void;
+	passwords: passwordType[];
+	setPasswords: (passwords: passwordType[]) => void;
 }
 
 const GlobalContext = createContext<PasswordContextType>({
@@ -21,11 +23,7 @@ const GlobalContext = createContext<PasswordContextType>({
 export const GlobalContextProvider = ({
 	children,
 }: GlobalContextProviderInterface) => {
-	const [passwords, setPasswords] = useState<string[]>([]);
-
-	useEffect(() => {
-		setPasswords(["1", "2"]);
-	}, []);
+	const [passwords, setPasswords] = useState<passwordType[]>([]);
 
 	return (
 		<GlobalContext.Provider value={{ passwords, setPasswords }}>

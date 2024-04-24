@@ -2,7 +2,8 @@ use std::error::Error;
 use serde::Serialize;
 use serde_json;
 use chrono::Local;
-use rusqlite::{ Connection, Result };
+
+use crate::database::connection;
 
 pub mod helpers;
 
@@ -17,21 +18,69 @@ struct User {
     create_date: String,
 }
 
+#[derive(Debug, Serialize)]
+struct Password {
+    title: String,
+    password: String,
+}
+
 #[derive(Serialize)]
 pub struct ReturnResponse {
     success: bool,
     response: String
 }
 
+// Commands
+
 #[tauri::command]
-pub fn run_add_password(title: String, password: String) -> ReturnResponse {
+pub fn run_get_passwords() -> ReturnResponse {
+    match get_passwords() {
+        Ok(response_passwords) => ReturnResponse {
+            success: true,
+            response: serde_json::to_string(&response_passwords).unwrap(),
+        },
+        Err(err) => ReturnResponse {
+            success: false,
+            response: format!("[Rust] Error: {}", err),
+        },
+    }
+}
 
-    let response: ReturnResponse = ReturnResponse { 
-        success: true, 
-        response: "".to_string() 
-    };
+fn get_passwords() -> Result<Vec<Password>, Box<dyn Error>> {
+    
+    let conn = connection()?;
 
-    return response;
+    let mut stmt = conn.prepare("SELECT * FROM sec_passwords")?;
+
+    let rows = stmt.query_map([], |row| {
+        Ok(Password {
+            title: row.get(1)?,
+            password: row.get(2)?,
+        })
+    })?;
+
+    // Converta os resultados em um vetor
+    let mut passwords = Vec::new();
+    for password in rows {
+        passwords.push(password?);
+    }
+
+    Ok(passwords)
+}
+
+#[tauri::command]
+pub fn run_add_password(title: &str, password: &str) -> ReturnResponse {
+
+    match add_password(title, password) {
+        Ok(_bool) => ReturnResponse {
+            success: true,
+            response: "[Rust] Password saved".to_string(),
+        },
+        Err(err) => ReturnResponse {
+            success: false,
+            response: format!("[Rust] Error: {}", err),
+        },
+    }
 }
 
 #[tauri::command]
@@ -62,6 +111,28 @@ pub fn run_verify_token(token: String) -> ReturnResponse {
     }
 }
 
+// Command Handlers
+
+fn add_password(title: &str, password: &str) -> Result<bool, Box<dyn Error>> {
+    
+    let os_user = whoami::username().to_string();
+
+    if check_user(&os_user)? {
+
+        let conn = connection()?;
+
+        let current_time = Local::now();
+        let formatted_time = current_time.format("%Y-%m-%d %H:%M:%S").to_string();
+
+        conn.execute(
+            "INSERT INTO sec_passwords (title, password, create_date, last_update) VALUES (?1, ?2, ?3, ?4)",
+            (&title, &password, formatted_time.to_string(), formatted_time.to_string()),
+        )?;
+    }
+
+    Ok(false)
+}
+
 fn add_token(token: String) -> Result<User, Box<dyn Error>> {
 
     let os_user = whoami::username().to_string();
@@ -73,10 +144,7 @@ fn add_token(token: String) -> Result<User, Box<dyn Error>> {
     
         let token_hash = hash_token(&token)?;
 
-        let conn = match Connection::open("db/sqlite.db") {
-            Ok(c) => c,
-            Err(e) => panic!("[Rust] Error: opening database: {}", e),
-        };
+        let conn = connection()?;
     
         let new_user = User {
             name: os_user.clone(),
@@ -99,8 +167,8 @@ fn add_token(token: String) -> Result<User, Box<dyn Error>> {
     }
 }
 
-fn check_user(name: &str) -> Result<bool> {
-    let conn = Connection::open("db/sqlite.db")?;
+fn check_user(name: &str) -> Result<bool, Box<dyn Error>> {
+    let conn = connection()?;
     let mut stmt = conn.prepare("SELECT COUNT(*) FROM sec_user WHERE name = ?1")?;
     let mut rows = stmt.query(&[name])?;
 
@@ -108,7 +176,7 @@ fn check_user(name: &str) -> Result<bool> {
         let count: i32 = row.get(0)?;
         Ok(count > 0)
     } else {
-        Err(rusqlite::Error::QueryReturnedNoRows)    
+        Err(Box::new(rusqlite::Error::QueryReturnedNoRows))  
     }
 }
 
@@ -116,7 +184,7 @@ fn verify_token(token: String) -> Result<User, Box<dyn Error>> {
 
     let os_user = whoami::username().to_string();
 
-    let conn = Connection::open("db/sqlite.db")?;
+    let conn = connection()?;
     let mut stmt = conn.prepare("SELECT name, auth, create_date FROM sec_user WHERE name = ?1")?;
 
     let user = stmt.query_row([os_user], |row| {

@@ -1,11 +1,16 @@
 use rusqlite::{ Connection, Result };
 
+pub fn connection() -> Result<Connection, rusqlite::Error> {
+
+    match Connection::open("db/sqlite.db") {
+        Ok(c) => Ok(c),
+        Err(e) => Err(e),
+    }
+}
+
 pub fn schema() -> Result<()> {
 
-    let conn = match Connection::open("db/sqlite.db") {
-        Ok(c) => c,
-        Err(e) => panic!("Error opening database: {}", e),
-    };
+    let conn = connection()?;
 
     /*
         User 
@@ -29,6 +34,7 @@ pub fn schema() -> Result<()> {
     conn.execute(
         "CREATE TABLE sec_passwords (
             id INTEGER PRIMARY KEY,
+            title TEXT NOT NULL,
             password TEXT NOT NULL,
             create_date DATETIME NOT NULL,
             last_update DATETIME NOT NULL
