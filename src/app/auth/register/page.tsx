@@ -1,14 +1,17 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
+import { type SubmitHandler, useForm } from "react-hook-form";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { icons } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
-import { type SubmitHandler, useForm } from "react-hook-form";
+
 import { z } from "zod";
 
 import useAuth from "@/app/auth/hooks/useAuth";
+import userHandler from "@/utils/handlers/userHandler";
 
 import Button from "@/app/components/ui/Button";
 import Input from "@/app/components/ui/Input";
@@ -21,7 +24,10 @@ const Register = () => {
 	const router = useRouter();
 
 	const { userRegister } = useAuth();
-	const [auth, setAuth] = useState(false);
+	const { checkUser } = userHandler();
+
+	const [ auth,  setAuth ] = useState(false);
+	const [ userExists, setUserExists ] = useState(false);
 
 	const {
 		register,
@@ -32,7 +38,7 @@ const Register = () => {
 		resolver: zodResolver(ZodSchema),
 	});
 
-	const hendleFormSubmit: SubmitHandler<RegisterSchema> = async (data) => {
+	const handleFormSubmit: SubmitHandler<RegisterSchema> = async (data) => {
 		try {
 			setAuth(await userRegister(data));
 		} catch (error) {
@@ -42,18 +48,32 @@ const Register = () => {
 		}
 	};
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
+
+		if(userExists) {
+			console.log('abc');
+			router.push('/auth/login');
+		}
+
+		const checkUserExists = async () => {
+			setUserExists(await checkUser());
+		}
+
+		checkUserExists();
+
 		if (auth) {
 			console.info("[Add] User created!");
 			router.refresh();
 		}
-	}, [auth, router]);
+
+	}, [auth, router, userExists]);
 
 	return (
 		<>
 			<div className="flex w-full justify-center px-5 mt-[30vh]">
 				<form
-					onSubmit={handleSubmit(hendleFormSubmit)}
+					onSubmit={handleSubmit(handleFormSubmit)}
 					className="flex flex-col gap-2 bg-neutral-900 shadow-sm p-2 rounded w-full md:w-[500px] z-[999] border-b-2 border-neutral-800"
 				>
 					<span className="flex items-center gap-2 justify-center p-2 text-2xl text-neutral-400 border-b border-neutral-800">

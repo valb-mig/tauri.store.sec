@@ -11,7 +11,8 @@ use handlers::{
   run_add_token, 
   run_verify_token,
   run_add_password,
-  run_get_passwords
+  run_get_passwords,
+  run_check_user
 };
 
 fn main() {
@@ -23,7 +24,8 @@ fn main() {
       run_add_token,
       run_verify_token,
       run_add_password,
-      run_get_passwords
+      run_get_passwords,
+      run_check_user
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

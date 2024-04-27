@@ -46,28 +46,6 @@ pub fn run_get_passwords() -> ReturnResponse {
     }
 }
 
-fn get_passwords() -> Result<Vec<Password>, Box<dyn Error>> {
-    
-    let conn = connection()?;
-
-    let mut stmt = conn.prepare("SELECT * FROM sec_passwords")?;
-
-    let rows = stmt.query_map([], |row| {
-        Ok(Password {
-            title: row.get(1)?,
-            password: row.get(2)?,
-        })
-    })?;
-
-    // Converta os resultados em um vetor
-    let mut passwords = Vec::new();
-    for password in rows {
-        passwords.push(password?);
-    }
-
-    Ok(passwords)
-}
-
 #[tauri::command]
 pub fn run_add_password(title: &str, password: &str) -> ReturnResponse {
 
@@ -103,6 +81,23 @@ pub fn run_verify_token(token: String) -> ReturnResponse {
         Ok(response_user) => ReturnResponse {
             success: true,
             response: serde_json::to_string(&response_user).unwrap(),
+        },
+        Err(err) => ReturnResponse {
+            success: false,
+            response: format!("[Rust] Error: {}", err),
+        },
+    }
+}
+
+#[tauri::command]
+pub fn run_check_user() -> ReturnResponse {
+
+    let os_user = whoami::username().to_string();
+
+    match check_user(&os_user) {
+        Ok(_) => ReturnResponse {
+            success: true,
+            response: format!("[Rust] User exists"),
         },
         Err(err) => ReturnResponse {
             success: false,
@@ -168,6 +163,7 @@ fn add_token(token: String) -> Result<User, Box<dyn Error>> {
 }
 
 fn check_user(name: &str) -> Result<bool, Box<dyn Error>> {
+    
     let conn = connection()?;
     let mut stmt = conn.prepare("SELECT COUNT(*) FROM sec_user WHERE name = ?1")?;
     let mut rows = stmt.query(&[name])?;
@@ -209,4 +205,26 @@ fn verify_token(token: String) -> Result<User, Box<dyn Error>> {
         Err(rusqlite::Error::QueryReturnedNoRows) => Err(Box::new(std::io::Error::new(std::io::ErrorKind::Other, "[Rust] User not found"))),
         Err(err) => Err(Box::new(err)),
     }
+}
+
+fn get_passwords() -> Result<Vec<Password>, Box<dyn Error>> {
+    
+    let conn = connection()?;
+
+    let mut stmt = conn.prepare("SELECT * FROM sec_passwords")?;
+
+    let rows = stmt.query_map([], |row| {
+        Ok(Password {
+            title: row.get(1)?,
+            password: row.get(2)?,
+        })
+    })?;
+
+    let mut passwords = Vec::new();
+    
+    for password in rows {
+        passwords.push(password?);
+    }
+
+    Ok(passwords)
 }
