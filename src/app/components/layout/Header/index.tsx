@@ -34,7 +34,7 @@ const Header = () => {
 		resolver: zodResolver(ZodSchema),
 	});
 
-	const hendleFormSubmit: SubmitHandler<AddSchema> = async (data) => {
+	const handleFormSubmit: SubmitHandler<AddSchema> = async (data) => {
 		try {
 			await addPassword(data);
 			reset();
@@ -61,7 +61,7 @@ const Header = () => {
 				</Modal.Header>
 				<Modal.Body>
 					<form
-						onSubmit={handleSubmit(hendleFormSubmit)}
+						onSubmit={handleSubmit(handleFormSubmit)}
 						className="flex flex-col gap-2"
 					>
 						<Input

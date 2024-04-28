@@ -26,8 +26,8 @@ const Register = () => {
 	const { userRegister } = useAuth();
 	const { checkUser } = userHandler();
 
-	const [ auth,  setAuth ] = useState(false);
-	const [ userExists, setUserExists ] = useState(false);
+	const [auth, setAuth] = useState(false);
+	const [userExists, setUserExists] = useState(false);
 
 	const {
 		register,
@@ -50,15 +50,14 @@ const Register = () => {
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
-
-		if(userExists) {
-			console.log('abc');
-			router.push('/auth/login');
+		if (userExists) {
+			console.log("abc");
+			router.push("/auth/login");
 		}
 
 		const checkUserExists = async () => {
 			setUserExists(await checkUser());
-		}
+		};
 
 		checkUserExists();
 
@@ -66,7 +65,6 @@ const Register = () => {
 			console.info("[Add] User created!");
 			router.refresh();
 		}
-
 	}, [auth, router, userExists]);
 
 	return (

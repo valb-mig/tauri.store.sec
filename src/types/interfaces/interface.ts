@@ -4,6 +4,7 @@ export interface responseType {
 }
 
 export interface passwordType {
+	id: number;
 	title: string;
 	password: string;
 }

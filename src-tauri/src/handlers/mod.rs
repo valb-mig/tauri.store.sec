@@ -20,6 +20,7 @@ struct User {
 
 #[derive(Debug, Serialize)]
 struct Password {
+    id: String,
     title: String,
     password: String,
 }
@@ -50,9 +51,9 @@ pub fn run_get_passwords() -> ReturnResponse {
 pub fn run_add_password(title: &str, password: &str) -> ReturnResponse {
 
     match add_password(title, password) {
-        Ok(_bool) => ReturnResponse {
+        Ok(response_passwords) => ReturnResponse {
             success: true,
-            response: "[Rust] Password saved".to_string(),
+            response: serde_json::to_string(&response_passwords).unwrap(),
         },
         Err(err) => ReturnResponse {
             success: false,
@@ -60,6 +61,22 @@ pub fn run_add_password(title: &str, password: &str) -> ReturnResponse {
         },
     }
 }
+
+#[tauri::command]
+pub fn run_edit_password(id: &str, title: &str, password: &str) -> ReturnResponse {
+
+    match edit_password(id, title, password) {
+        Ok(_) => ReturnResponse {
+            success: true,
+            response: String::from("[Rust] Password edited"),
+        },
+        Err(err) => ReturnResponse {
+            success: false,
+            response: format!("[Rust] Error: {}", err),
+        },
+    }
+}
+
 
 #[tauri::command]
 pub fn run_add_token(token: String) -> ReturnResponse {
@@ -97,7 +114,7 @@ pub fn run_check_user() -> ReturnResponse {
     match check_user(&os_user) {
         Ok(_) => ReturnResponse {
             success: true,
-            response: format!("[Rust] User exists"),
+            response: String::from("[Rust] User exists"),
         },
         Err(err) => ReturnResponse {
             success: false,
@@ -108,7 +125,7 @@ pub fn run_check_user() -> ReturnResponse {
 
 // Command Handlers
 
-fn add_password(title: &str, password: &str) -> Result<bool, Box<dyn Error>> {
+fn add_password(title: &str, password: &str) -> Result<Password, Box<dyn Error>> {
     
     let os_user = whoami::username().to_string();
 
@@ -123,9 +140,40 @@ fn add_password(title: &str, password: &str) -> Result<bool, Box<dyn Error>> {
             "INSERT INTO sec_passwords (title, password, create_date, last_update) VALUES (?1, ?2, ?3, ?4)",
             (&title, &password, formatted_time.to_string(), formatted_time.to_string()),
         )?;
+
+        let id = conn.last_insert_rowid();
+
+        let added_password = Password {
+            id: id.to_string(),
+            title: title.to_string(),
+            password: password.to_string()
+        };
+
+        return Ok(added_password);
+    }
+    
+    Err(Box::new(std::io::Error::new(std::io::ErrorKind::Other, "[Rust] User don't exists")))
+}
+
+fn edit_password(id: &str, title: &str, password: &str) -> Result<bool, Box<dyn Error>> {
+    let os_user = whoami::username().to_string();
+
+    if check_user(&os_user)? {
+
+        let current_time = Local::now();
+        let formatted_time = current_time.format("%Y-%m-%d %H:%M:%S").to_string();
+
+        let conn = connection()?;
+
+        conn.execute(
+            "UPDATE sec_passwords SET title=?1, password=?2, last_update=?3 WHERE id=?4",
+            (title, password, formatted_time.to_string(), id),
+        )?;
+
+        return Ok(true);
     }
 
-    Ok(false)
+    Err(Box::new(std::io::Error::new(std::io::ErrorKind::Other, "[Rust] User don't exists")))
 }
 
 fn add_token(token: String) -> Result<User, Box<dyn Error>> {
@@ -215,6 +263,7 @@ fn get_passwords() -> Result<Vec<Password>, Box<dyn Error>> {
 
     let rows = stmt.query_map([], |row| {
         Ok(Password {
+            id: row.get::<_, i64>(0)?.to_string(),
             title: row.get(1)?,
             password: row.get(2)?,
         })

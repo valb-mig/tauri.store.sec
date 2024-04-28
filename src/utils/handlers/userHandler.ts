@@ -5,12 +5,10 @@ import type { responseType } from "@/types/interfaces/interface";
 import { invoke } from "@tauri-apps/api/tauri";
 
 const userHandler = () => {
+	const checkUser = async () => {
+		let res: responseType | null = null;
 
-    const checkUser = async () => {
-		
-        let res: responseType | null = null;
-
-        try {
+		try {
 			const result = await invoke<responseType>("run_check_user", {});
 			res = result;
 		} catch (e) {
@@ -28,9 +26,9 @@ const userHandler = () => {
 		}
 
 		return false;
-    }
+	};
 
 	return { checkUser };
-}
+};
 
 export default userHandler;

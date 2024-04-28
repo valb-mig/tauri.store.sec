@@ -6,6 +6,7 @@ import { useGlobalContext } from "@/config/context/global/store";
 import { invoke } from "@tauri-apps/api/tauri";
 
 interface formData {
+	id?: string;
 	title: string;
 	password: string;
 }
@@ -33,6 +34,7 @@ const passwordHandler = () => {
 				setPasswords([
 					...passwords,
 					{
+						id: 0,
 						title: form.title,
 						password: form.password,
 					},
@@ -45,6 +47,25 @@ const passwordHandler = () => {
 		}
 
 		return false;
+	};
+
+	const editPassword = async (form: formData) => {
+		let res: responseType | null = null;
+
+		try {
+			const result = await invoke<responseType>("run_edit_password", {
+				id: form.id,
+				title: form.title,
+				password: form.password,
+			});
+			res = result;
+		} catch (e) {
+			console.error(e);
+		}
+
+		console.log(res);
+
+		return res?.success;
 	};
 
 	const getPasswords = async () => {
@@ -72,7 +93,7 @@ const passwordHandler = () => {
 		return userPassowords;
 	};
 
-	return { addPassword, getPasswords };
+	return { addPassword, editPassword, getPasswords };
 };
 
 export default passwordHandler;

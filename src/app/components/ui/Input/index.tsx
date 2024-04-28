@@ -20,6 +20,7 @@ interface InputStyleOptions {
 interface InputProps {
 	type: string;
 	value?: string;
+	defaultValue?: string;
 	label?: string;
 	placeholder?: string;
 	hookForm?: object;
@@ -29,6 +30,7 @@ interface InputProps {
 const Input = ({
 	type,
 	value,
+	defaultValue,
 	label,
 	hookForm,
 	placeholder,
@@ -46,6 +48,7 @@ const Input = ({
 			<input
 				type={type}
 				value={value}
+				defaultValue={defaultValue}
 				placeholder={placeholder}
 				className={InputStyle(style)}
 				{...hookForm}

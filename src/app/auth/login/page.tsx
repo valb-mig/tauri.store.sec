@@ -32,7 +32,7 @@ const Login = () => {
 		resolver: zodResolver(ZodSchema),
 	});
 
-	const hendleFormSubmit: SubmitHandler<LoginSchema> = async (data) => {
+	const handleFormSubmit: SubmitHandler<LoginSchema> = async (data) => {
 		try {
 			setAuth(await userLogin(data));
 		} catch (error) {
@@ -53,7 +53,7 @@ const Login = () => {
 		<>
 			<div className="flex w-full justify-center px-5 mt-[30vh]">
 				<form
-					onSubmit={handleSubmit(hendleFormSubmit)}
+					onSubmit={handleSubmit(handleFormSubmit)}
 					className="flex flex-col gap-2 bg-neutral-900 shadow-sm p-2 rounded w-full md:w-[500px] z-[999] border-b-2 border-neutral-800"
 				>
 					<span className="flex items-center gap-2 justify-center p-2 text-2xl text-neutral-400 border-b border-neutral-800">

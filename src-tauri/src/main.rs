@@ -8,6 +8,7 @@ use crate::database::schema;
 mod handlers;
 
 use handlers::{
+  run_edit_password,
   run_add_token, 
   run_verify_token,
   run_add_password,
@@ -21,6 +22,7 @@ fn main() {
 
   tauri::Builder::default()
     .invoke_handler(tauri::generate_handler![
+      run_edit_password,
       run_add_token,
       run_verify_token,
       run_add_password,
